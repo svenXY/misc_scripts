@@ -3,7 +3,7 @@ kernzeit.py
 A script that calculates optimal working hours and breaks due to German law.
 It is an interavtive script to record when you came and left work and it will tell you when you have to (or may ;-)) go.
 
-feierabend.py
+haltestelleninfos.py
 
 Checks for valid trains on the schedule page of the Deutsche Bundesbahn (DB) for a certain station.
 Will use notify-frameworks of the linux desktop environments to notify about delays etc. Is intended to be used as a cronjob say every 2 minutes for an amount of time.
