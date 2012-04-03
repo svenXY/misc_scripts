@@ -21,7 +21,7 @@ import argparse
 
 
 # Interessante Züge (füge 'S8' zum testen hinzu)
-ZUEGE = [ 'S8', 'EC391', 'IC391', 'IC2373' ]
+ZUEGE = [ 'EC391', 'IC391', 'IC2373' ]
 
 parser = argparse.ArgumentParser(
             description='Fragt die DB Haltestelleninformationen nach aktuellen Zügen ab.')
@@ -48,7 +48,7 @@ postParams = urllib.urlencode({
         'input'             : args.bahnhof,
         'boardType'         : 'dep',
         'time'              : 'actual',
-        'productsDefault'   : '1111111000',
+        'productsDefault'   : '1111111111',
         'productsLocal'     : '0000010111',
         'productsFilter'    : '1111111111',
         'distance'          : '1',
@@ -65,10 +65,12 @@ data = ''.join(conn.readlines())
 TREE = lxml.html.fromstring(data)
 
 #### no more configuration ###
-def normalize(string):
+def normalize(string, complete=False):
     '''Normalisiere die Zugnamen'''
     string = re.sub(r'\n', '', string)
-    string = re.sub(r'\s', '', string)
+    string = re.sub(r'\s+', ' ', string)
+    if complete:
+        string = re.sub(r'\s', '', string)
     return string
 
 
@@ -84,7 +86,7 @@ try:
         normalize(''.join(leaf.getparent().xpath('td[@class="ris"]')[0].text_content()))
                   )
           for leaf in TREE.xpath('//td[@class="train"]') 
-          if PATTERN.search( normalize(str(leaf.xpath('a/text()')))) ]
+          if PATTERN.search( normalize(str(leaf.xpath('a/text()')), True)) ]
 except IndexError:
   pass
 
