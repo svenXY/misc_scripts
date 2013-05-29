@@ -1,0 +1,10 @@
+#!/bin/bash
+
+msg=$(git log -1 HEAD)
+root=$(git rev-parse --show-toplevel)
+
+if [ $(hostname) == "xs1-svenh" ]; then
+    echo "Also committing to SVN"
+    python ~/bin/git2svn_commit.py "$msg"
+fi
+
