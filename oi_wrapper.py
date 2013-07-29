@@ -28,11 +28,11 @@ NOW = time()
 logging.info('*** Starting ***')
 
 if os.path.exists(FLAGFILE):
-    logging.info('Flagfile exists')
+    logging.debug('Flagfile exists')
     with open(FLAGFILE) as f:
         mtime = os.fstat(f.fileno())[-2]
         if (NOW - mtime)/60.0 > MAX_RUNTIME:
-            logging.info('Flagfile is old enough - try to end process')
+            logging.debug('Flagfile is old enough - try to end process')
             pid=f.read()
             try:
                 os.kill(int(pid), 9)
@@ -42,7 +42,7 @@ if os.path.exists(FLAGFILE):
                 if e.errno == 2:
                     pass
                 elif e.errno == 3:
-                    logging.info('No such process - removing file')
+                    logging.debug('No such process - removing file')
                     os.remove(FLAGFILE)
                 else:
                     logging.error("Could not remove flagfile: %s" % e)
@@ -51,7 +51,7 @@ if os.path.exists(FLAGFILE):
             logging.info('Flagfile is not ancient. Exiting quietly')
             sys.exit(0)
 else:
-    logging.debug("no flagfile")
+    logging.debug("No Flagfile")
 
 cmd = list( OI_CMD.split(' '))
 p = Popen(
@@ -79,5 +79,5 @@ except OSError, e:
         sys.exit(1)
 
 
-logging.info("*** Proper end ***")
+logging.debug("*** Proper end ***")
 
