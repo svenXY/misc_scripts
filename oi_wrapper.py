@@ -16,7 +16,7 @@ from time import time
 import logging
 
 logging.basicConfig(filename='/home/svenh/tmp/oi.log',
-                    level=logging.DEBUG,
+                    level=logging.INFO,
                     format='%(asctime)s %(levelname)s [%(process)d] %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -24,8 +24,26 @@ FLAGFILE='/tmp/oi_running'
 OI_CMD='/usr/local/bin/offlineimap -o -u quiet'
 MAX_RUNTIME = 5
 NOW = time()
+MAILBOX = '~/Maildir/notes/Inbox'
+FROM = 'oi@localhost'
+TO   = 'sven@localhost'
 
-logging.info('*** Starting ***')
+def send_error_mail(TO, FROM, MAILBOX, Text):
+    import mailbox
+    import email.utils
+    from_addr = email.utils.formataddr('offlineimap', FROM)
+    to_addr = email.utils.formataddr('OI Admin', TO)
+    msg = mailbox.mboxMessage()
+    msg['From'] = from_addr
+    msg['To'] = to_addr
+    msg['Date'] = email.utils.formatdate(localtime=True)
+    msg['Subject'] = 'Problems with offlineimap'
+    msg.set_payload(Text + "\n")
+    mbox = mailbox.Maildir(MAILBOX)
+    mbox.add(msg)
+    logging.info('Wrote mail to maildir')
+
+logging.debug('*** Starting ***')
 
 if os.path.exists(FLAGFILE):
     logging.debug('Flagfile exists')
@@ -36,6 +54,7 @@ if os.path.exists(FLAGFILE):
             pid=f.read()
             try:
                 os.kill(int(pid), 9)
+                send_error_mail(TO, FROM, MAILBOX, 'Killed old offlineimap process')
                 logging.info('Killed OK - removing file')
                 os.remove(FLAGFILE)
             except OSError, e:
@@ -46,6 +65,7 @@ if os.path.exists(FLAGFILE):
                     os.remove(FLAGFILE)
                 else:
                     logging.error("Could not remove flagfile: %s" % e)
+                    send_error_mail(TO, FROM, MAILBOX, 'Could not remove the old flagfile')
                     sys.exit(1)
         else:
             logging.info('Flagfile is not ancient. Exiting quietly')
@@ -76,6 +96,7 @@ except OSError, e:
         pass
     else:
         logging.error("Could not remove flagfile: %s" % e)
+        send_error_mail(TO, FROM, MAILBOX, 'Could not remove the old flagfile')
         sys.exit(1)
 
 
