@@ -87,8 +87,10 @@ with open(FLAGFILE, 'w') as f:
 logging.info("Starting offlineimap process")
 out, err = p.communicate()
 
-logging.info(out)
-logging.error(err)
+if out:
+    logging.info(out)
+if err:
+    logging.error(err)
 logging.debug("Removing flagfile")
 
 try:
