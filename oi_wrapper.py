@@ -22,7 +22,7 @@ logging.basicConfig(filename='/home/svenh/tmp/oi.log',
 
 FLAGFILE='/tmp/oi_running'
 OI_CMD='/usr/local/bin/offlineimap -o -u quiet'
-MAX_RUNTIME = 5
+MAX_RUNTIME = 5 # minutes
 NOW = time()
 MAILBOX = '~/Maildir/notes/Inbox'
 FROM = 'oi@localhost'
@@ -55,7 +55,7 @@ if os.path.exists(FLAGFILE):
             try:
                 os.kill(int(pid), 9)
                 send_error_mail(TO, FROM, MAILBOX, 'Killed old offlineimap process')
-                logging.info('Killed OK - removing file')
+                logging.info('Killed offlineimap process [%s] OK - removing file' % pid)
                 os.remove(FLAGFILE)
             except OSError, e:
                 if e.errno == 2:
@@ -81,10 +81,10 @@ p = Popen(
 )
 
 with open(FLAGFILE, 'w') as f:
-    logging.debug("writing flagfile")
+    logging.debug("Writing flagfile")
     f.write(str(p.pid))
 
-logging.info("Starting offlineimap process")
+logging.debug("Starting offlineimap process [%d]" % p.pid)
 out, err = p.communicate()
 
 logging.info(out)
